@@ -17,53 +17,30 @@ using System.Net.Mail;
 
 namespace IoTListenerFunction
 {
-    public  class IotHubGateway
+    public class IotHubGateway
     {
         private readonly IContainer Container;
+        private readonly IIoTController _ioTController;
         public IotHubGateway()
         {
             Container = AutofacContainerFactory.Create();
+            _ioTController = Container.Resolve<IIoTController>();
+
+
         }
 
         [FunctionName("IotHubListener")]
-        public async Task Run([IoTHubTrigger("messages/events", Connection = "IotEventHubConnectionString")]EventData message, ILogger log)
+        public async Task Run([IoTHubTrigger("messages/events", Connection = "IotEventHubConnectionString")] EventData message, ILogger log)
         {
-            var prop = message.Properties.FirstOrDefault();
-
+        
             var messageData = (message.Body != null && message.Body.Array.Length > 0) ? Encoding.UTF8.GetString(message.Body.Array) : string.Empty;
             var iotNamespace = typeof(IotControllersModule).Namespace;
-            var command = prop.Key;
-            //var controllerType = Assembly
-            //    .GetExecutingAssembly()
-            //    .GetReferencedAssemblies()
-            //    .Where(x => x.Name == iotNamespace)
-            //    .Select(Assembly.Load)
-            //    .SelectMany(x => x.ExportedTypes)
-            //    .FirstOrDefault(x => x.Name == command + "IotController");
-            //if (controllerType == null) throw new IotHubCommunicationException("Route not found");
-            //var controllerInstance = Container.Resolve(controllerType) as IoTController;
-            //var methodInfo = controllerType.GetMethod(prop.Value.ToString());
-
-            //var methodParams = new List<object>();
-
-            //if (!string.IsNullOrWhiteSpace(messageData) && messageData != "{}")
-            //{
-            //    if (messageData.StartsWith('[') && messageData.EndsWith(']'))
-            //    {
-            //        methodParams = JsonConvert.DeserializeObject<List<object>>(messageData);
-            //    }
-            //    else if (messageData.StartsWith('{') && messageData.EndsWith('}'))
-            //    {
-            //        var columns = JsonConvert.DeserializeObject<Dictionary<string, object>>(messageData);
-            //        methodParams = columns.Select(col => col.Value).ToList();
-            //    }
-            //}
-            //var deviceId = message.SystemProperties["demodevice"];
-            //methodParams.Add(deviceId);
+       
+            var deviceId = message.SystemProperties["iothub-connection-device-id"];
             try
             {
-                SendEmail();
-                }
+                _ioTController.SendEmail(deviceId.ToString(),messageData);
+            }
             catch (Exception e)
             {
                 log.LogError(e, $"IoT Hub trigger function processed a message: {messageData}");
@@ -71,28 +48,7 @@ namespace IoTListenerFunction
 
         }
 
-        public static void SendEmail()
-        {
-            MailMessage mailMessage = new MailMessage("azurefundemo@gmail.com", "azurefundemo@gmail.com");
-            mailMessage.Body = "data received";
-            mailMessage.Subject = "trigger";
-            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.Credentials = new System.Net.NetworkCredential()
-            {
-                UserName = "azurefundemo@gmail.com",
-                Password = "azurefunctiondemo1!"
-            };
-            smtpClient.EnableSsl = true;
-            try
-            {
-                smtpClient.Send(mailMessage);
-
-            }
-            catch(Exception ex)
-            { 
-            
-            }
-        }
+       
     }
     public static class ExtensionMethods
     {

@@ -1,28 +1,43 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IoTControllers.Controllers
 {
-    public class TempIoTController : IoTController
+    public class TempIoTController : IIoTController
     {
 
 
-        private readonly ITempRepository _tempRepository;
-        public TempIoTController(ITempRepository tempRepository)
+       
+        public TempIoTController()
         {
-            _tempRepository = tempRepository;
+
         }
 
-        public async Task AddAsync(string deviceId, JObject model)
+        public void SendEmail(string deviceId, string messageData)
         {
-            await _tempRepository.AddAsync(deviceId, model.ToObject<TemperatureModel>());
-        }
-        public async Task AddManyAsync(string deviceId, JArray models)
-        {
-            await _tempRepository.AddManyAsync(deviceId, models.ToObject<List<TemperatureModel>>());
+            MailMessage mailMessage = new MailMessage("azurefundemo@gmail.com", "azurefundemo@gmail.com");
+            mailMessage.Body = messageData;
+            mailMessage.Subject = "Data received from "+ deviceId;
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 587);
+            smtpClient.Credentials = new System.Net.NetworkCredential()
+            {
+                UserName = "azurefundemo@gmail.com",
+                Password = "azurefunctiondemo1!"
+            };
+            smtpClient.EnableSsl = true;
+            try
+            {
+                smtpClient.Send(mailMessage);
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
     }

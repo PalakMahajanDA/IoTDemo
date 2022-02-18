@@ -14,7 +14,7 @@ namespace IoTDevice
         static void Main(string[] args)
         {
             string deviceId = "demodevice".ToLower();
-            string deviceKey = "lfDwxgkt9qrPypG1cG5UfwtKRp0pzIkvYA7aUlop64o=";
+            string deviceKey = "B+3n8AzPVcfbkEdkDrV1mieF9F3Cc0boEHxLJjiZdTQ=";
             string hostname = $"IOTHubDemo2022.azure-devices.net";
             string endpoint = $"{hostname}/devices/{deviceId}";
             var token = GenerateSasToken(endpoint, deviceKey);
@@ -35,9 +35,7 @@ namespace IoTDevice
                     Precipitation = 0
                 });
             var eventMessage = new Message(Encoding.UTF8.GetBytes(dataBuffer));
-            // Add  key value to each message for routing, key is the controller, value is the function
-            eventMessage.Properties.Add("Temp", "AddAsync");
-
+          
             await deviceClient.SendEventAsync(eventMessage);
 
 

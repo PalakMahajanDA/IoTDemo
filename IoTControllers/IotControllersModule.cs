@@ -9,6 +9,7 @@ namespace IoTControllers
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<TempIoTController>();
+           
         }
     }
 }

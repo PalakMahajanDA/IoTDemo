@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using IoTControllers;
+using IoTControllers.Controllers;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace IoTListenerFunction
 
             builder.RegisterAssemblyModules(assemblies);
             builder.RegisterModule<IotControllersModule>();
+            builder.RegisterType<TempIoTController>().As<IIoTController>();
         }
     }
 }
